@@ -4,6 +4,7 @@ import {
   accountSchema,
   apiErrorSchema,
   authStateSchema,
+  clientConfigSchema,
   deviceSchema,
   settingsSchema,
   spotifyAppSchema,
@@ -11,6 +12,7 @@ import {
   type Account,
   type AccountConfig,
   type AuthState,
+  type ClientConfig,
   type CreateSpotifyAppInput,
   type Device,
   type Settings,
@@ -65,6 +67,11 @@ export async function login(password: string): Promise<AuthState> {
 
 export async function logout(): Promise<void> {
   await request('/auth/logout', { method: 'POST' });
+}
+
+// ---- Client config ----
+export async function getClientConfig(): Promise<ClientConfig> {
+  return clientConfigSchema.parse(await request('/config'));
 }
 
 // ---- Spotify apps ----

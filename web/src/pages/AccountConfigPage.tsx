@@ -1,6 +1,7 @@
 import { type FormEvent, type ReactElement, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
 import { type AccountConfig, type Device, deviceStrategySchema } from '@spotibot/shared';
 import { ApiError, getAccountConfig, getAccountDevices, updateAccountConfig } from '../api';
 
@@ -13,7 +14,14 @@ export function AccountConfigPage(): ReactElement {
     enabled: id !== '',
   });
 
-  if (configQuery.isPending) return <p className="muted">Loading…</p>;
+  if (configQuery.isPending) {
+    return (
+      <p className="muted loading">
+        <LoaderCircle size={16} className="spin" />
+        Loading
+      </p>
+    );
+  }
   if (configQuery.isError || configQuery.data === undefined) {
     return <p className="error">Failed to load configuration.</p>;
   }
@@ -77,7 +85,10 @@ function ConfigForm({ accountId, initial }: ConfigFormProps): ReactElement {
     <section>
       <div className="row between">
         <h2>Automation</h2>
-        <Link to="/">← Back</Link>
+        <Link to="/">
+          <ArrowLeft size={14} />
+          Back
+        </Link>
       </div>
       <form className="card" onSubmit={onSubmit}>
         <label className="switch">
@@ -185,6 +196,7 @@ function ConfigForm({ accountId, initial }: ConfigFormProps): ReactElement {
         {error !== null ? <p className="error">{error}</p> : null}
         {saved ? <p className="ok-text">Saved.</p> : null}
         <button type="submit" disabled={saveMutation.isPending}>
+          <Save size={16} />
           Save
         </button>
       </form>

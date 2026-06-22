@@ -5,6 +5,7 @@ import { isAuthenticated } from '../plugins/auth';
 import { registerAccountRoutes } from './accounts';
 import { registerAppRoutes } from './apps';
 import { registerAuthRoutes } from './auth';
+import { registerMetaRoutes } from './meta';
 import { registerSettingsRoutes } from './settings';
 import { registerSpotifyRoutes } from './spotify';
 import { registerStatusRoutes } from './status';
@@ -22,6 +23,7 @@ export async function registerApiRoutes(app: FastifyInstance, ctx: AppContext): 
         }
       });
 
+      registerMetaRoutes(api, ctx);
       registerAuthRoutes(api, ctx);
       registerSpotifyRoutes(api, ctx);
       registerAppRoutes(api, ctx);

@@ -1,6 +1,7 @@
 import { type FormEvent, type ReactElement, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ApiError, createApp, deleteApp, listApps } from '../api';
+import { ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { ApiError, createApp, deleteApp, getClientConfig, listApps } from '../api';
 
 export function AppsPage(): ReactElement {
   const queryClient = useQueryClient();
@@ -9,7 +10,11 @@ export function AppsPage(): ReactElement {
   const [name, setName] = useState('');
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
-  const [redirectUri, setRedirectUri] = useState(`${window.location.origin}/api/spotify/callback`);
+  const configQuery = useQuery({ queryKey: ['client-config'], queryFn: getClientConfig });
+  const suggestedRedirectUri =
+    configQuery.data?.spotifyRedirectUri ?? `${window.location.origin}/api/spotify/callback`;
+  const [redirectOverride, setRedirectOverride] = useState<string | null>(null);
+  const redirectUri = redirectOverride ?? suggestedRedirectUri;
   const [error, setError] = useState<string | null>(null);
 
   const createMutation = useMutation({
@@ -19,6 +24,7 @@ export function AppsPage(): ReactElement {
       setName('');
       setClientId('');
       setClientSecret('');
+      setRedirectOverride(null);
       setError(null);
     },
     onError: (err: unknown) => {
@@ -44,10 +50,33 @@ export function AppsPage(): ReactElement {
   return (
     <section>
       <h2>Spotify Apps</h2>
-      <p className="muted">
-        Register OAuth credentials from your Spotify Developer dashboard. Each app can authorize up
-        to 5 accounts in Development Mode — add more apps to manage more accounts.
-      </p>
+
+      <div className="card instructions">
+        <p>
+          <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">
+            Open the Spotify Developer Dashboard
+            <ExternalLink size={13} />
+          </a>{' '}
+          to create an app, then paste its credentials below.
+        </p>
+        <ol>
+          <li>
+            Click <strong>Create app</strong> and tick <strong>Web API</strong>.
+          </li>
+          <li>
+            Set the app&apos;s <strong>Redirect URI</strong> to exactly{' '}
+            <code className="mono">{redirectUri}</code>.
+          </li>
+          <li>
+            Open <strong>Settings</strong>, then copy the <strong>Client ID</strong> and{' '}
+            <strong>Client secret</strong> into the form.
+          </li>
+        </ol>
+        <p className="hint">
+          Each app authorizes up to 5 accounts (Development Mode); add more apps for more accounts.
+          The account you control must be Spotify Premium.
+        </p>
+      </div>
 
       <form className="card" onSubmit={onSubmit}>
         <label>
@@ -88,13 +117,13 @@ export function AppsPage(): ReactElement {
             value={redirectUri}
             required
             onChange={(e) => {
-              setRedirectUri(e.target.value);
+              setRedirectOverride(e.target.value);
             }}
           />
         </label>
-        <p className="hint">Add this exact redirect URI in your Spotify app settings.</p>
         {error !== null ? <p className="error">{error}</p> : null}
         <button type="submit" disabled={createMutation.isPending}>
+          <Plus size={16} />
           Add app
         </button>
       </form>
@@ -111,6 +140,7 @@ export function AppsPage(): ReactElement {
                   deleteMutation.mutate(app.id);
                 }}
               >
+                <Trash2 size={16} />
                 Delete
               </button>
             </div>

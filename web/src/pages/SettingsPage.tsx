@@ -1,11 +1,19 @@
 import { type FormEvent, type ReactElement, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { LoaderCircle, Save } from 'lucide-react';
 import type { Settings } from '@spotibot/shared';
 import { getSettings, updateSettings } from '../api';
 
 export function SettingsPage(): ReactElement {
   const settingsQuery = useQuery({ queryKey: ['settings'], queryFn: getSettings });
-  if (settingsQuery.isPending) return <p className="muted">Loading…</p>;
+  if (settingsQuery.isPending) {
+    return (
+      <p className="muted loading">
+        <LoaderCircle size={16} className="spin" />
+        Loading
+      </p>
+    );
+  }
   if (settingsQuery.isError || settingsQuery.data === undefined) {
     return <p className="error">Failed to load settings.</p>;
   }
@@ -53,6 +61,7 @@ function SettingsForm({ initial }: { initial: Settings }): ReactElement {
         </p>
         {saved ? <p className="ok-text">Saved.</p> : null}
         <button type="submit" disabled={saveMutation.isPending}>
+          <Save size={16} />
           Save
         </button>
       </form>

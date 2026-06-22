@@ -2,6 +2,16 @@ import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import {
+  KeyRound,
+  Music,
+  Pause,
+  Play,
+  Plus,
+  SlidersHorizontal,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
 import type { StatusItem } from '@spotibot/shared';
 import { deleteAccount, getStatus, listApps, setAccountEnabled, startSpotifyConnect } from '../api';
 
@@ -35,7 +45,10 @@ export function AccountsPage(): ReactElement {
         <h2>Accounts</h2>
         <div className="connect">
           {apps.length === 0 ? (
-            <Link to="/apps">Add a Spotify app first →</Link>
+            <Link to="/apps">
+              <KeyRound size={14} />
+              Add a Spotify app first
+            </Link>
           ) : (
             <>
               <select
@@ -57,6 +70,7 @@ export function AccountsPage(): ReactElement {
                   startSpotifyConnect(effectiveApp);
                 }}
               >
+                <Plus size={16} />
                 Connect account
               </button>
             </>
@@ -99,9 +113,20 @@ function AccountCard({ item, onToggle, onRemove }: AccountCardProps): ReactEleme
       <div className="row between">
         <strong>{item.displayName}</strong>
         <div className="badges">
-          {!item.isPremium ? <span className="badge warn">No Premium</span> : null}
-          {item.reauthRequired ? <span className="badge danger">Re-auth</span> : null}
+          {!item.isPremium ? (
+            <span className="badge warn">
+              <TriangleAlert size={12} />
+              No Premium
+            </span>
+          ) : null}
+          {item.reauthRequired ? (
+            <span className="badge danger">
+              <KeyRound size={12} />
+              Re-auth
+            </span>
+          ) : null}
           <span className={`badge ${item.isPlaying ? 'ok' : ''}`}>
+            {item.isPlaying ? <Play size={12} /> : <Pause size={12} />}
             {item.isPlaying ? 'Playing' : 'Silent'}
           </span>
         </div>
@@ -109,7 +134,8 @@ function AccountCard({ item, onToggle, onRemove }: AccountCardProps): ReactEleme
       <p className="muted">{statusLabel}</p>
       {item.nowPlaying !== null ? (
         <p className="nowplaying">
-          ♪ {item.nowPlaying.trackName} — {item.nowPlaying.artistName}
+          <Music size={14} />
+          {item.nowPlaying.trackName} · {item.nowPlaying.artistName}
         </p>
       ) : null}
       {item.lastError !== null ? <p className="error">{item.lastError}</p> : null}
@@ -125,8 +151,12 @@ function AccountCard({ item, onToggle, onRemove }: AccountCardProps): ReactEleme
           <span>Watch account</span>
         </label>
         <div className="actions">
-          <Link to={`/accounts/${item.accountId}/config`}>Configure</Link>
+          <Link to={`/accounts/${item.accountId}/config`}>
+            <SlidersHorizontal size={14} />
+            Configure
+          </Link>
           <button type="button" className="danger" onClick={onRemove}>
+            <Trash2 size={16} />
             Remove
           </button>
         </div>

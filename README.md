@@ -7,15 +7,15 @@ more Spotify automations over the same engine.
 
 > **Not affiliated with Spotify.** Controls only Spotify Connect devices you already own, for genuine
 > personal listening. Playback control requires **Spotify Premium** on each controlled account. Spotify's
-> developer terms restrict automated/bot-driven streaming intended to manipulate play counts — this tool
+> developer terms restrict automated/bot-driven streaming intended to manipulate play counts; this tool
 > is for your own listening, but you use it at your own risk. See `/temp/spotibot-plan.md` for the legal
 > notes that shaped this.
 
 ## Stack
 
-- **shared/** — zod DTOs shared by server and web.
-- **server/** — TypeScript · Fastify · Drizzle ORM + PostgreSQL · background poller.
-- **web/** — React + Vite SPA · React Router · TanStack Query.
+- **shared/**: zod DTOs shared by server and web.
+- **server/**: TypeScript · Fastify · Drizzle ORM + PostgreSQL · background poller.
+- **web/**: React + Vite SPA · React Router · TanStack Query.
 - Single multi-stage Docker image; `docker compose` brings up the app + Postgres.
 
 ## How it works

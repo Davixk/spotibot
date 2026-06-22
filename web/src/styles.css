@@ -257,3 +257,58 @@ button.danger {
   gap: 8px;
   align-items: center;
 }
+
+/* icon alignment + animation */
+button,
+.nav a,
+.brand,
+.login h1,
+.actions a,
+.connect a,
+.badge,
+.nowplaying,
+.loading,
+.instructions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge,
+.actions a,
+.connect a,
+.instructions a {
+  gap: 4px;
+}
+
+.login h1 {
+  justify-content: center;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.instructions ol {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.instructions code {
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+}

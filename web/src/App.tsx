@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { LoaderCircle } from 'lucide-react';
 import { getAuthState } from './api';
 import { Layout } from './components/Layout';
 import { AccountConfigPage } from './pages/AccountConfigPage';
@@ -13,7 +14,11 @@ export function App(): ReactElement {
   const authQuery = useQuery({ queryKey: ['auth'], queryFn: getAuthState });
 
   if (authQuery.isPending) {
-    return <div className="center muted">Loading…</div>;
+    return (
+      <div className="center muted">
+        <LoaderCircle size={20} className="spin" />
+      </div>
+    );
   }
 
   const authenticated = authQuery.data?.authenticated ?? false;

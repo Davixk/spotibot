@@ -1,5 +1,6 @@
 import { type FormEvent, type ReactElement, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Headphones, LoaderCircle, LogIn } from 'lucide-react';
 import { ApiError, login } from '../api';
 
 export function LoginPage(): ReactElement {
@@ -26,7 +27,10 @@ export function LoginPage(): ReactElement {
   return (
     <div className="center">
       <form className="card login" onSubmit={onSubmit}>
-        <h1>spotibot</h1>
+        <h1>
+          <Headphones size={22} />
+          spotibot
+        </h1>
         <p className="muted">Enter the dashboard password to continue.</p>
         <input
           type="password"
@@ -39,7 +43,17 @@ export function LoginPage(): ReactElement {
         />
         {error !== null ? <p className="error">{error}</p> : null}
         <button type="submit" disabled={loginMutation.isPending || password.length === 0}>
-          {loginMutation.isPending ? 'Signing in…' : 'Sign in'}
+          {loginMutation.isPending ? (
+            <>
+              <LoaderCircle size={16} className="spin" />
+              Signing in
+            </>
+          ) : (
+            <>
+              <LogIn size={16} />
+              Sign in
+            </>
+          )}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Headphones, KeyRound, LogOut, Settings, Users } from 'lucide-react';
 import { logout } from '../api';
 
 export function Layout(): ReactElement {
@@ -18,13 +19,23 @@ export function Layout(): ReactElement {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="brand">spotibot</div>
+        <div className="brand">
+          <Headphones size={18} />
+          spotibot
+        </div>
         <nav className="nav">
           <NavLink to="/" end>
+            <Users size={16} />
             Accounts
           </NavLink>
-          <NavLink to="/apps">Spotify Apps</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
+          <NavLink to="/apps">
+            <KeyRound size={16} />
+            Spotify Apps
+          </NavLink>
+          <NavLink to="/settings">
+            <Settings size={16} />
+            Settings
+          </NavLink>
         </nav>
         <button
           type="button"
@@ -34,6 +45,7 @@ export function Layout(): ReactElement {
           }}
           disabled={logoutMutation.isPending}
         >
+          <LogOut size={16} />
           Log out
         </button>
       </header>

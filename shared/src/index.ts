@@ -84,6 +84,12 @@ export const settingsSchema = z.object({
 });
 export type Settings = z.infer<typeof settingsSchema>;
 
+// ---- Client runtime config (served to the SPA) ----
+export const clientConfigSchema = z.object({
+  spotifyRedirectUri: z.string(),
+});
+export type ClientConfig = z.infer<typeof clientConfigSchema>;
+
 // ---- Live devices (proxied from Spotify) ----
 export const deviceSchema = z.object({
   id: z.string().nullable(),
