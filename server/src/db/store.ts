@@ -96,6 +96,38 @@ export async function deleteSpotifyApp(db: Database, id: string): Promise<void> 
   await db.delete(spotifyApps).where(eq(spotifyApps.id, id));
 }
 
+export interface UpdateAppParams {
+  name: string;
+  clientId: string;
+  redirectUri: string;
+  encClientSecret?: string;
+}
+
+export async function updateSpotifyApp(
+  db: Database,
+  id: string,
+  params: UpdateAppParams,
+): Promise<SpotifyAppRow | undefined> {
+  const set: Partial<typeof spotifyApps.$inferInsert> = {
+    name: params.name,
+    clientId: params.clientId,
+    redirectUri: params.redirectUri,
+  };
+  if (params.encClientSecret !== undefined) {
+    set.encClientSecret = params.encClientSecret;
+  }
+  const updated = await db.update(spotifyApps).set(set).where(eq(spotifyApps.id, id)).returning();
+  return updated[0];
+}
+
+export async function getAppAccountCount(db: Database, appId: string): Promise<number> {
+  const rows = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(accounts)
+    .where(eq(accounts.appId, appId));
+  return rows[0]?.count ?? 0;
+}
+
 // ---- Accounts ----
 export interface UpsertAccountParams {
   appId: string;

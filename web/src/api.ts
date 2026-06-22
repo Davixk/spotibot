@@ -18,6 +18,7 @@ import {
   type Settings,
   type SpotifyApp,
   type StatusItem,
+  type UpdateSpotifyAppInput,
 } from '@spotibot/shared';
 
 export class ApiError extends Error {
@@ -81,6 +82,10 @@ export async function listApps(): Promise<SpotifyApp[]> {
 
 export async function createApp(input: CreateSpotifyAppInput): Promise<SpotifyApp> {
   return spotifyAppSchema.parse(await request('/apps', { method: 'POST', body: input }));
+}
+
+export async function updateApp(id: string, input: UpdateSpotifyAppInput): Promise<SpotifyApp> {
+  return spotifyAppSchema.parse(await request(`/apps/${id}`, { method: 'PUT', body: input }));
 }
 
 export async function deleteApp(id: string): Promise<void> {

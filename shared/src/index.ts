@@ -45,6 +45,15 @@ export const spotifyAppSchema = z.object({
 });
 export type SpotifyApp = z.infer<typeof spotifyAppSchema>;
 
+export const updateSpotifyAppInputSchema = z.object({
+  name: z.string().min(1).max(120),
+  clientId: z.string().min(1).max(200),
+  // Provide a non-empty value to replace the stored secret; omit or leave blank to keep it.
+  clientSecret: z.string().max(400).optional(),
+  redirectUri: z.url(),
+});
+export type UpdateSpotifyAppInput = z.infer<typeof updateSpotifyAppInputSchema>;
+
 // ---- Accounts ----
 export const accountSchema = z.object({
   id: z.string(),

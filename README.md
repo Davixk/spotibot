@@ -80,3 +80,17 @@ pnpm run db:generate    # regenerate Drizzle SQL migrations after schema changes
 
 GitHub Actions runs the full gate on every push/PR. On push to **`dev`** (the default branch) a green run
 builds and publishes the container image to **GHCR** (`ghcr.io/<owner>/spotibot`).
+
+## Disclaimer
+
+This project is an independent, unofficial tool. It is **not affiliated with, endorsed by, or sponsored
+by Spotify AB**. "Spotify" and the Spotify logo are trademarks of Spotify AB.
+
+The software is provided "as is", without warranty of any kind, express or implied; you use it entirely
+at your own risk. You are solely responsible for ensuring your use complies with the
+[Spotify Developer Terms](https://developer.spotify.com/terms) and
+[Developer Policy](https://developer.spotify.com/policy), including the prohibition on using bots or
+scripts to artificially influence streaming activity. It is intended for personal, non-commercial use
+with your own account(s). The authors and contributors accept no liability for any consequences of
+using this software, including but not limited to the suspension or termination of Spotify accounts or
+developer applications.

@@ -1,7 +1,8 @@
 import { type FormEvent, type ReactElement, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, Trash2 } from 'lucide-react';
-import { ApiError, createApp, deleteApp, getClientConfig, listApps } from '../api';
+import { ExternalLink, Pencil, Plus, Save, Trash2, X } from 'lucide-react';
+import type { SpotifyApp } from '@spotibot/shared';
+import { ApiError, createApp, deleteApp, getClientConfig, listApps, updateApp } from '../api';
 
 export function AppsPage(): ReactElement {
   const queryClient = useQueryClient();
@@ -29,13 +30,6 @@ export function AppsPage(): ReactElement {
     },
     onError: (err: unknown) => {
       setError(err instanceof ApiError ? err.message : 'Failed to create app');
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteApp(id),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['apps'] });
     },
   });
 
@@ -133,27 +127,162 @@ export function AppsPage(): ReactElement {
 
       <ul className="cards">
         {apps.map((app) => (
-          <li className="card" key={app.id}>
-            <div className="row between">
-              <strong>{app.name}</strong>
-              <button
-                type="button"
-                className="danger"
-                onClick={() => {
-                  deleteMutation.mutate(app.id);
-                }}
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
-            <p className="muted mono">{app.clientId}</p>
-            <p className="muted">
-              {app.accountCount} account(s) · {app.redirectUri}
-            </p>
-          </li>
+          <AppCard key={app.id} app={app} />
         ))}
       </ul>
     </section>
+  );
+}
+
+function AppCard({ app }: { app: SpotifyApp }): ReactElement {
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState(false);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteApp(app.id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['apps'] });
+    },
+  });
+
+  if (editing) {
+    return (
+      <EditAppForm
+        app={app}
+        onDone={() => {
+          setEditing(false);
+        }}
+      />
+    );
+  }
+
+  return (
+    <li className="card">
+      <div className="row between">
+        <strong>{app.name}</strong>
+        <div className="actions">
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => {
+              setEditing(true);
+            }}
+          >
+            <Pencil size={15} />
+            Edit
+          </button>
+          <button
+            type="button"
+            className="danger"
+            onClick={() => {
+              deleteMutation.mutate();
+            }}
+          >
+            <Trash2 size={16} />
+            Delete
+          </button>
+        </div>
+      </div>
+      <p className="muted mono">{app.clientId}</p>
+      <p className="muted">
+        {app.accountCount} account(s) · {app.redirectUri}
+      </p>
+    </li>
+  );
+}
+
+interface EditAppFormProps {
+  app: SpotifyApp;
+  onDone: () => void;
+}
+
+function EditAppForm({ app, onDone }: EditAppFormProps): ReactElement {
+  const queryClient = useQueryClient();
+  const [name, setName] = useState(app.name);
+  const [clientId, setClientId] = useState(app.clientId);
+  const [clientSecret, setClientSecret] = useState('');
+  const [redirectUri, setRedirectUri] = useState(app.redirectUri);
+  const [error, setError] = useState<string | null>(null);
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      updateApp(app.id, {
+        name,
+        clientId,
+        redirectUri,
+        clientSecret: clientSecret.length > 0 ? clientSecret : undefined,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['apps'] });
+      onDone();
+    },
+    onError: (err: unknown) => {
+      setError(err instanceof ApiError ? err.message : 'Failed to update app');
+    },
+  });
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    setError(null);
+    saveMutation.mutate();
+  };
+
+  return (
+    <li className="card">
+      <form className="edit-form" onSubmit={onSubmit}>
+        <label>
+          Name
+          <input
+            value={name}
+            required
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />
+        </label>
+        <label>
+          Client ID
+          <input
+            value={clientId}
+            required
+            onChange={(e) => {
+              setClientId(e.target.value);
+            }}
+          />
+        </label>
+        <label>
+          Client secret
+          <input
+            type="password"
+            value={clientSecret}
+            placeholder="Leave blank to keep current secret"
+            onChange={(e) => {
+              setClientSecret(e.target.value);
+            }}
+          />
+        </label>
+        <label>
+          Redirect URI
+          <input
+            value={redirectUri}
+            required
+            onChange={(e) => {
+              setRedirectUri(e.target.value);
+            }}
+          />
+        </label>
+        {error !== null ? <p className="error">{error}</p> : null}
+        <div className="actions">
+          <button type="submit" disabled={saveMutation.isPending}>
+            <Save size={16} />
+            Save
+          </button>
+          <button type="button" className="ghost" onClick={onDone}>
+            <X size={16} />
+            Cancel
+          </button>
+        </div>
+      </form>
+    </li>
   );
 }
