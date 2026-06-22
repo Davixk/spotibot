@@ -73,8 +73,11 @@ export function AppsPage(): ReactElement {
           </li>
         </ol>
         <p className="hint">
-          Each app authorizes up to 5 accounts (Development Mode); add more apps for more accounts.
-          The account you control must be Spotify Premium.
+          The redirect URI must be HTTPS (or a <code className="mono">http://127.0.0.1</code>{' '}
+          loopback); Spotify rejects plain-http LAN or localhost addresses as insecure, so serve
+          spotibot over HTTPS and set PUBLIC_BASE_URL to that URL. Each app authorizes up to 5
+          accounts (Development Mode); add more apps for more accounts. The account you control must
+          be Spotify Premium.
         </p>
       </div>
 

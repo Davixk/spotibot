@@ -31,7 +31,10 @@ in Development Mode) and thus manage many accounts.
 - Node 22+ and `pnpm` (via `corepack enable`), or just Docker.
 - A PostgreSQL database.
 - One or more Spotify apps from the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard),
-  each with redirect URI `$PUBLIC_BASE_URL/api/spotify/callback`.
+  each with redirect URI `$PUBLIC_BASE_URL/api/spotify/callback`. Spotify requires this to be HTTPS
+  (or a `http://127.0.0.1` loopback); a plain-http LAN or `localhost` address is rejected as
+  `redirect_uri: Insecure`, so serve the app over HTTPS (e.g. behind a reverse proxy) and set
+  `PUBLIC_BASE_URL` to that URL.
 
 ## Quick start (Docker)
 
