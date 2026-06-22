@@ -30,7 +30,7 @@ export const createSpotifyAppInputSchema = z.object({
   name: z.string().min(1).max(120),
   clientId: z.string().min(1).max(200),
   clientSecret: z.string().min(1).max(400),
-  redirectUri: z.string().url(),
+  redirectUri: z.url(),
 });
 export type CreateSpotifyAppInput = z.infer<typeof createSpotifyAppInputSchema>;
 

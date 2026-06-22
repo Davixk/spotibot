@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 export const idParamSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
 });
 
 export const authorizeQuerySchema = z.object({
-  appId: z.string().uuid(),
+  appId: z.uuid(),
 });
 
 export const callbackQuerySchema = z.object({
