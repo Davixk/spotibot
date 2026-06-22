@@ -6,8 +6,10 @@ import {
   getAccountConfig,
   getEnabledAccounts,
   getSettings,
+  isTrackProcessed,
   listAccounts,
   recordEvent,
+  recordTrackProcessed,
   setAccountPremium,
   toAccountDto,
 } from '../db/store';
@@ -15,6 +17,7 @@ import {
   getDevices,
   getPlaybackState,
   type PlaybackState,
+  saveTrack,
   setShuffle,
   setVolume,
   startPlayback,
@@ -32,6 +35,7 @@ interface AccountRuntime {
   nowPlaying: NowPlaying | null;
   lastError: string | null;
   rateLimitedUntil: number | null;
+  lastAutoAddTrackId: string | null;
 }
 
 export interface PollerDeps {
@@ -119,6 +123,7 @@ export class PollerEngine {
       nowPlaying: null,
       lastError: null,
       rateLimitedUntil: null,
+      lastAutoAddTrackId: null,
     };
     this.runtime.set(accountId, fresh);
     return fresh;
@@ -153,12 +158,17 @@ export class PollerEngine {
       state.nowPlaying = playback?.nowPlaying ?? null;
       state.lastError = null;
 
+      const config = await getAccountConfig(this.deps.db, account.id);
+
+      if (config.autoAddToLibrary && isPlaying && playback?.trackId != null) {
+        await this.maybeAutoAddToLibrary(account, token, playback.trackId, state);
+      }
+
       if (isPlaying) {
         state.lastPlayingAt = now;
         return;
       }
 
-      const config = await getAccountConfig(this.deps.db, account.id);
       const shouldAct = shouldStartPlayback({
         isPlaying,
         now,
@@ -187,6 +197,32 @@ export class PollerEngine {
         return await getPlaybackState(freshToken);
       }
       throw error;
+    }
+  }
+
+  /**
+   * Adds the currently playing track to the account's library, but only once per
+   * track ever. We persist every track we add, and never act on a track again, so
+   * if the user later removes it we do not fight them by re-adding it.
+   */
+  private async maybeAutoAddToLibrary(
+    account: AccountRow,
+    token: string,
+    trackId: string,
+    state: AccountRuntime,
+  ): Promise<void> {
+    if (state.lastAutoAddTrackId === trackId) return;
+    state.lastAutoAddTrackId = trackId;
+    try {
+      if (await isTrackProcessed(this.deps.db, account.id, trackId)) return;
+      await saveTrack(token, trackId);
+      await recordTrackProcessed(this.deps.db, account.id, trackId);
+      await this.safeRecord(account.id, 'library_add', { trackId });
+    } catch (error) {
+      this.deps.logger.warn(
+        { err: error, accountId: account.id, trackId },
+        'failed to auto-add track to library',
+      );
     }
   }
 

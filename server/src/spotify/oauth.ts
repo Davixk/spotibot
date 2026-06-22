@@ -11,6 +11,8 @@ export const SPOTIFY_SCOPES = [
   'user-read-currently-playing',
   // Required for the `product` field on /v1/me, used to detect Spotify Premium.
   'user-read-private',
+  // Required to add played tracks to the user's library.
+  'user-library-modify',
 ] as const;
 
 export interface AppCredentials {

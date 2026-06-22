@@ -1,10 +1,11 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Account, AccountConfig, Settings, SpotifyApp } from '@spotibot/shared';
 import type { Database } from './index';
 import {
   accountConfigs,
   accounts,
   events,
+  libraryAdds,
   settings,
   spotifyApps,
   type AccountConfigRow,
@@ -52,6 +53,7 @@ export function toConfigDto(row: AccountConfigRow): AccountConfig {
     shuffle: row.shuffle,
     cooldownSeconds: row.cooldownSeconds,
     enabled: row.enabled,
+    autoAddToLibrary: row.autoAddToLibrary,
   };
 }
 
@@ -242,6 +244,7 @@ export async function updateAccountConfig(
       shuffle: config.shuffle,
       cooldownSeconds: config.cooldownSeconds,
       enabled: config.enabled,
+      autoAddToLibrary: config.autoAddToLibrary,
     })
     .where(eq(accountConfigs.accountId, accountId))
     .returning();
@@ -279,4 +282,26 @@ export async function recordEvent(
   detail: Record<string, unknown>,
 ): Promise<void> {
   await db.insert(events).values({ accountId, type, detail });
+}
+
+// ---- Library auto-add bookkeeping ----
+export async function isTrackProcessed(
+  db: Database,
+  accountId: string,
+  trackId: string,
+): Promise<boolean> {
+  const rows = await db
+    .select({ trackId: libraryAdds.trackId })
+    .from(libraryAdds)
+    .where(and(eq(libraryAdds.accountId, accountId), eq(libraryAdds.trackId, trackId)))
+    .limit(1);
+  return rows.length > 0;
+}
+
+export async function recordTrackProcessed(
+  db: Database,
+  accountId: string,
+  trackId: string,
+): Promise<void> {
+  await db.insert(libraryAdds).values({ accountId, trackId }).onConflictDoNothing();
 }

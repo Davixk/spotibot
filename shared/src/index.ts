@@ -84,6 +84,7 @@ export const accountConfigSchema = z.object({
   shuffle: z.boolean(),
   cooldownSeconds: z.number().int().min(0).max(86_400),
   enabled: z.boolean(),
+  autoAddToLibrary: z.boolean(),
 });
 export type AccountConfig = z.infer<typeof accountConfigSchema>;
 

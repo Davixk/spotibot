@@ -3,6 +3,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -54,6 +55,7 @@ export const accountConfigs = pgTable('account_configs', {
   shuffle: boolean('shuffle').notNull().default(false),
   cooldownSeconds: integer('cooldown_seconds').notNull().default(60),
   enabled: boolean('enabled').notNull().default(false),
+  autoAddToLibrary: boolean('auto_add_to_library').notNull().default(false),
 });
 
 export const settings = pgTable('settings', {
@@ -68,6 +70,22 @@ export const events = pgTable('events', {
   type: text('type').notNull(),
   detail: jsonb('detail'),
 });
+
+/**
+ * Tracks the engine has auto-added to an account's library. We never act on a
+ * track listed here again, so a manual removal by the user is not undone.
+ */
+export const libraryAdds = pgTable(
+  'library_adds',
+  {
+    accountId: uuid('account_id')
+      .notNull()
+      .references(() => accounts.id, { onDelete: 'cascade' }),
+    trackId: text('track_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.accountId, table.trackId] })],
+);
 
 export type SpotifyAppRow = typeof spotifyApps.$inferSelect;
 export type AccountRow = typeof accounts.$inferSelect;

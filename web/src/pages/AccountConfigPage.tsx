@@ -193,6 +193,17 @@ function ConfigForm({ accountId, initial }: ConfigFormProps): ReactElement {
           <span>Shuffle</span>
         </label>
 
+        <label className="switch">
+          <input
+            type="checkbox"
+            checked={form.autoAddToLibrary}
+            onChange={(e) => {
+              update('autoAddToLibrary', e.target.checked);
+            }}
+          />
+          <span>Auto-add every played song to your library</span>
+        </label>
+
         {error !== null ? <p className="error">{error}</p> : null}
         {saved ? <p className="ok-text">Saved.</p> : null}
         <button type="submit" disabled={saveMutation.isPending}>

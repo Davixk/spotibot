@@ -13,6 +13,8 @@ export interface PlaybackState {
   isPlaying: boolean;
   device: Device | null;
   nowPlaying: NowPlaying | null;
+  /** The current item's Spotify track id, or null if it is not a saveable track. */
+  trackId: string | null;
 }
 
 function toDevice(device: DeviceApi): Device {
@@ -101,10 +103,12 @@ export async function getPlaybackState(accessToken: string): Promise<PlaybackSta
         trackUrl: item.external_urls?.spotify ?? null,
       }
     : null;
+  const trackId = item && item.type === 'track' && item.id ? item.id : null;
   return {
     isPlaying: state.is_playing,
     device: state.device ? toDevice(state.device) : null,
     nowPlaying,
+    trackId,
   };
 }
 
@@ -161,4 +165,9 @@ export async function startPlayback(
     query: { device_id: params.deviceId },
     body,
   });
+}
+
+/** Adds a track to the user's "Liked Songs" library (idempotent). */
+export async function saveTrack(accessToken: string, trackId: string): Promise<void> {
+  await spotifyRequest('PUT', '/me/tracks', accessToken, { body: { ids: [trackId] } });
 }

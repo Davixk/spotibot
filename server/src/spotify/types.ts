@@ -31,6 +31,8 @@ export const devicesResponseSchema = z.object({
 });
 
 export const trackSchema = z.object({
+  id: z.string().nullish(),
+  type: z.string().optional(),
   name: z.string(),
   artists: z.array(z.object({ name: z.string() })),
   external_urls: z.object({ spotify: z.string().optional() }).optional(),
