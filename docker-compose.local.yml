@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: spotibot
       POSTGRES_DB: spotibot
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U spotibot']
       interval: 5s
