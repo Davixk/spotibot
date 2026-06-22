@@ -9,4 +9,4 @@
 *.log
 **/*.tsbuildinfo
 README.md
-docker-compose.yml
+docker-compose*.yml

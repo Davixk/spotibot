@@ -39,7 +39,14 @@ in Development Mode) and thus manage many accounts.
 cp .env.example .env
 # Edit .env: set DASHBOARD_PASSWORD, SESSION_SECRET (32+ chars), and generate TOKEN_ENCRYPTION_KEY:
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-docker compose up --build
+docker compose up -d
+```
+
+`docker-compose.yml` runs the published image `ghcr.io/davixk/spotibot` (pin a version with
+`SPOTIBOT_TAG` in `.env`). To build the image from source instead, use the local compose file:
+
+```bash
+docker compose -f docker-compose.local.yml up --build
 ```
 
 Open http://localhost:8080, log in, add a Spotify app (Spotify Apps page), then **Connect account**.
